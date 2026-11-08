@@ -3,18 +3,23 @@ name: Validate HEMTT
 on:
   push:
     branches:
+      - dev
       - main
+      - rewrite
   pull_request:
     branches:
+      - dev
       - main
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the source code
       uses: actions/checkout@v4
     - name: Setup HEMTT
       uses: arma-actions/hemtt@v1
-    - name: Validate HEMTT
+    - name: HEMTT check (lints)
       run: hemtt check
+    - name: HEMTT build
+      run: hemtt build

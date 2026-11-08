@@ -9,7 +9,7 @@
 ```
 cvo_redmag/
 ├── .hemtt/
-│   └── project.toml              # name, prefix "cvo_redmag", version, signing
+│   └── project.toml              # name, prefix "cvo_redmag", mainprefix "cvo", version, signing
 ├── addons/
 │   ├── main/                     # CfgPatches, script_macros.hpp, version, mod.cpp data
 │   ├── core/                     # ALL code: functions, event handlers, CBA settings, ACE interactions
@@ -58,12 +58,12 @@ engine finds the file as `functions\<category>\fn_<name>.sqf`:
 class CfgFunctions {
     class cvo_redmag_core {                       // tag → cvo_redmag_core_fnc_*
         class init {
-            file = "\z\cvo_redmag\addons\core\functions\init";
+            file = "\cvo\cvo_redmag\addons\core\functions\init";
             class preInit  { preInit  = 1; };     // CBA settings, buildLookups, validation
             class postInit { postInit = 1; };     // player event handlers, can actions, server events
         };
         class data {
-            file = "\z\cvo_redmag\addons\core\functions\data";
+            file = "\cvo\cvo_redmag\addons\core\functions\data";
             class buildLookups {};
             class splitLoad {};
             class resolveRoundType {};
@@ -71,7 +71,7 @@ class CfgFunctions {
             class isEligibleUnit {};
         };
         class empties {
-            file = "\z\cvo_redmag\addons\core\functions\empties";
+            file = "\cvo\cvo_redmag\addons\core\functions\empties";
             class onReloaded {};
             class onMagazineUnloaded {};
             class findUnloadedMagazine {};
@@ -89,7 +89,8 @@ class CfgFunctions {
 - CBA functions (settings, events, player event handlers) are still **called**, and CBA's
   **script macros** are used throughout (`GVAR`, `QGVAR`, `FUNC`, `QFUNC`, `EFUNC`, ...).
   Only CBA's function compilation (`PREP`) and XEH init are not used.
-- `main` provides `script_mod.hpp` (`PREFIX cvo_redmag`) and `script_macros.hpp`
+- `main` provides `script_mod.hpp` (`MAINPREFIX cvo`, `PREFIX cvo_redmag`, so addon paths
+  are `\cvo\cvo_redmag\addons\<component>\...`) and `script_macros.hpp`
   (includes `\x\cba\addons\main\script_macros_common.hpp`). Each addon sets
   `COMPONENT` in its own `script_component.hpp`, and every `.sqf` file includes it.
 - The macros and `CfgFunctions` agree on names: in `core`, `FUNC(splitLoad)` expands to

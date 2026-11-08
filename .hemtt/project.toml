@@ -1,10 +1,10 @@
-name = "24th CVO Ammo Logistics"
+name = "CVO Redmag"
 prefix = "cvo_redmag"
 mainprefix = "cvo"
 
 [properties]
 author = "24th Chorni Voron"
-url = "https://github.com/SkippieDippie/CVO-Ammo-Logistics"
+url = "https://github.com/SkippieDippie/CVO-Redmag"
 
 [files]
 include = [
@@ -16,6 +16,7 @@ exclude  = [
     "*.svg",
     "*.md",
     "/.vscode/*",
+    "/docs/*",
     "/sources/*",
     "/tools/*",
     ".gitignore",

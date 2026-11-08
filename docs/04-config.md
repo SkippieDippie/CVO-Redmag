@@ -136,7 +136,7 @@ class CfgWeapons {
         author = "CVO Redmag";
         displayName = "Empty STANAG Magazine (30)";
         descriptionShort = "Empty 5.56 mm magazine. Refill via ACE self-interaction.";
-        picture = "\z\cvo_redmag\addons\ammo\ui\stanag30_empty_ca.paa";
+        picture = "\cvo\cvo_redmag\addons\ammo\ui\stanag30_empty_ca.paa";
         model = "\A3\Weapons_F\MagazineProxies\mag_univ.p3d";
         class ItemInfo : CBA_MiscItem_ItemInfo { mass = 3; };
     };
