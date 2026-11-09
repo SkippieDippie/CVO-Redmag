@@ -27,10 +27,14 @@ class CfgCVORedmag {
         class shotgun      { displayName = "Shotgun shells";      packs[] = {"cvo_redmag_pack_shotgun_box25"}; };
     };
 
-    // Basic-mode round types
+    // Basic-mode round types. ammo[]: every CfgAmmo a magazine of this caliber may use (D30).
     class Calibers {
-        class 556x45 { displayName = "5.56×45 mm"; category = "intermediate"; packs[] = {"cvo_redmag_pack_556x45_box20", "cvo_redmag_pack_556x45_clip10"}; };
-        class 545x39 { displayName = "5.45×39 mm"; category = "intermediate"; packs[] = {"cvo_redmag_pack_545x39_packet30"}; };
+        class 556x45 {
+            displayName = "5.56×45 mm"; category = "intermediate";
+            ammo[] = {"B_556x45_Ball", "B_556x45_Ball_Tracer_Red", "B_556x45_Ball_Tracer_Green", "B_556x45_Ball_Tracer_Yellow", "B_556x45_dual"};
+            packs[] = {"cvo_redmag_pack_556x45_box20", "cvo_redmag_pack_556x45_clip10"};
+        };
+        class 545x39 { displayName = "5.45×39 mm"; category = "intermediate"; packs[] = {"cvo_redmag_pack_545x39_box30"}; };
         class 762x39 { displayName = "7.62×39 mm"; category = "intermediate"; packs[] = {"cvo_redmag_pack_762x39_box20"}; };
         class 762x51 { displayName = "7.62×51 mm"; category = "rifle";        packs[] = {"cvo_redmag_pack_762x51_box20"}; };
         class 9x21   { displayName = "9×21 mm";    category = "pistol";       packs[] = {"cvo_redmag_pack_9x21_box50"}; };
@@ -44,6 +48,10 @@ class CfgCVORedmag {
             emptyItem = "cvo_redmag_empty_stanag30";
             stripperCompatible = 1;      // faster loading with stripper clips
         };
+        // Another finish of the same magazine: inherits everything but the Empty.
+        class stanag30_sand: stanag30 {
+            emptyItem = "cvo_redmag_empty_stanag30_sand";
+        };
         class m249box200 {
             caliber   = "556x45";
             capacity  = 200;
@@ -56,20 +64,43 @@ class CfgCVORedmag {
     class Cartridges {
         class 556_ball {
             caliber     = "556x45";
-            ammo        = "B_556x45_Ball";        // CfgAmmo; validated against mapped mags
+            ammo        = "B_556x45_Ball";        // CfgAmmo given to this cartridge's packs; must be in the caliber's ammo[]
             displayName = "5.56 mm Ball";
             // Real-world packaging: 20-round box, 10-round stripper clip
             packs[]     = {"cvo_redmag_pack_556_ball_box20", "cvo_redmag_pack_556_ball_clip10"};
         };
-        class 556_tracer_red {
+        // One tracer cartridge for every tracer colour (D36).
+        class 556_tracer {
             caliber     = "556x45";
             ammo        = "B_556x45_Ball_Tracer_Red";
-            displayName = "5.56 mm Tracer (Red)";
-            packs[]     = {"cvo_redmag_pack_556_tracer_red_box20"};
+            displayName = "5.56 mm Tracer";
+            packs[]     = {"cvo_redmag_pack_556_tracer_box20"};
         };
     };
 };
 ```
+
+**Tracer colour is not a cartridge.** Each caliber has one tracer cartridge, whatever
+colour its magazines draw. The colour belongs to the magazine class, through its ammo.
+Classes that only differ by tracer colour (red, green and yellow tracer STANAGs; the yellow
+and red LIM-85 boxes) therefore map to the same *(body, load)*, and `cvo_redmag_preferred`
+picks the one that refilling an Empty produces.
+
+**A body includes its finish.** Magazines that look different are different bodies,
+each with its own Empty, so a sand Empty only makes sand magazines and a khaki MX Empty only
+khaki MX magazines. "Looks different" means another 3D model (`modelSpecial`) or other
+textures (`hiddenSelectionsTextures`). Class names are not used, because their naming is
+inconsistent, especially across mods, and the inventory icon is not used either, because it
+changes with the tracer load. A colour variant inherits from the base body and only sets its
+own `emptyItem`. Loads are not part of the body: the vanilla reload-tracer STANAGs look like
+the plain one and share `stanag30`.
+
+**Ammo is checked per caliber, not per cartridge.** In vanilla the tracer behaviour
+comes from the magazine's `tracersEvery`, not from its ammo class: MX ball and tracer
+magazines share `B_65x39_Caseless`, the Katiba ball magazine uses the green-tracer ammo, and
+the LIM-85 ball box fires only `B_556x45_Ball_Tracer_Yellow` with `tracersEvery = 4`. The
+cartridge is therefore taken from the mapping, and the validator only checks that the
+magazine's ammo belongs to the cartridge's caliber.
 
 Categories, calibers and cartridges each list their own `packs[]`, because each is a round
 type in one ammo mode (see [02 §0](02-gameplay.md#0-ammo-modes)). A compat addon that adds a
@@ -84,32 +115,41 @@ e.g. `rhs_pmag30`, to avoid collisions.
 ```cpp
 class CfgMagazines {
     class CA_Magazine;
+    // Ball with the last 4 rounds tracer (engine: tracersEvery = 0, lastRoundsTracer = 4).
     class 30Rnd_556x45_Stanag : CA_Magazine {
-        cvo_redmag_body      = "stanag30";
-        cvo_redmag_cartridge = "556_ball";
+        cvo_redmag_body             = "stanag30";
+        cvo_redmag_cartridge        = "556_ball";    // ball part
+        cvo_redmag_tracerCartridge  = "556_tracer";  // tracer part; presence makes it a mix
+        cvo_redmag_preferred        = 1;             // wins over the _green / _red variants
     };
+    // All tracer (tracersEvery = 1): a single tracer cartridge.
     class 30Rnd_556x45_Stanag_Tracer_Red : 30Rnd_556x45_Stanag {
-        cvo_redmag_cartridge = "556_tracer_red";       // body inherited
+        cvo_redmag_cartridge        = "556_tracer";  // body inherited
+        cvo_redmag_tracerCartridge  = "";            // clears the inherited mix
+        cvo_redmag_preferred        = 1;             // wins over the green and yellow tracers
     };
-
-    // Mixed load: filled from ball AND tracer rounds. Example class; the vanilla
-    // mixed classes are identified in M1.
+    // One tracer in 4 plus the last 4 (tracersEvery = 4, lastRoundsTracer = 4).
     class 200Rnd_556x45_Box_F : CA_Magazine {
         cvo_redmag_body             = "m249box200";
-        cvo_redmag_cartridge        = "556_ball";        // ball part
-        cvo_redmag_tracerCartridge  = "556_tracer_red";  // tracer part; presence makes it a mix
-        // cvo_redmag_tracerEvery   = 5;                 // optional; defaults to the class's tracersEvery
+        cvo_redmag_cartridge        = "556_ball";
+        cvo_redmag_tracerCartridge  = "556_tracer";
+        // cvo_redmag_tracerEvery      = 4;   // optional; defaults to the class's tracersEvery
+        // cvo_redmag_lastRoundsTracer = 4;   // optional; defaults to the class's lastRoundsTracer
     };
 };
 ```
+
+The `ammo` addon writes these with the `CVO_SINGLE(body, cartridge)` and
+`CVO_MIX(body, ball, tracer)` macros, which set every attribute.
 
 | Attribute | Required | Meaning |
 |-----------|----------|---------|
 | `cvo_redmag_body` | yes | Body ID. `""` excludes the class. |
 | `cvo_redmag_cartridge` | yes | The cartridge, or the ball part of a mix. |
-| `cvo_redmag_tracerCartridge` | no | The tracer part of a mix. Leave it out for a single-cartridge load. |
-| `cvo_redmag_tracerEvery` | no | One tracer every *N* rounds. Defaults to the magazine's engine `tracersEvery`. A mix with no usable value (< 2) fails validation. |
-| `cvo_redmag_preferred` | no | Breaks ties when two classes map to the same *(body, load)*. |
+| `cvo_redmag_tracerCartridge` | no | The tracer part of a mix: the caliber's tracer cartridge, whatever the tracer colour (D36). Leave it out for a single-cartridge load. |
+| `cvo_redmag_tracerEvery` | no | One tracer every *N* rounds (0 = none). Defaults to the magazine's engine `tracersEvery`. A mix with *N* = 1 or *N* < 0 fails validation. |
+| `cvo_redmag_lastRoundsTracer` | no | The last *L* rounds are tracers. Defaults to the magazine's engine `lastRoundsTracer`. A mix with *N* = 0 and *L* = 0 has no tracers and fails validation. |
+| `cvo_redmag_preferred` | no | Breaks ties when two classes map to the same *(body, load)*. Only counts on the class that sets it: children do not inherit it (D31). |
 
 > ⚠️ **Inheritance pitfall:** subclasses inherit `cvo_redmag_*` attributes. A child magazine with a
 > different `ammo` or `count` inherits a wrong mapping unless it is overridden. The preInit
@@ -117,6 +157,11 @@ class CfgMagazines {
 > warning. To exclude a class explicitly, set `cvo_redmag_body = "";`. A child of a mixed
 > class also inherits `cvo_redmag_tracerCartridge`; set it to `""` to make the child a
 > single-cartridge load.
+>
+> Vanilla has several such cases: the SDAR magazine inherits from the STANAG, the Katiba,
+> Promet and Mk200 magazines from MX magazines, and the blank magazines from the mapped
+> classes. The `ammo` addon therefore sets every attribute on every class (the `CVO_SINGLE`
+> and `CVO_MIX` macros) and excludes the blanks.
 
 **Reverse lookup:** `bodyLoadToMag` is built from these attributes. If two magazine classes
 map to the same *(body, load)*, the one with `cvo_redmag_preferred = 1` wins. Otherwise the
@@ -155,7 +200,7 @@ class cvo_redmag_pack_556_ball_box20 : CA_Magazine {
     ammo  = "B_556x45_Ball";
     count = 20;
     mass  = 6;                             // real-world weight, converted to Arma mass units (TBC)
-    cvo_redmag_packType = "box";           // "box" | "packet" | "clip"
+    cvo_redmag_packType = "box";           // "box" | "clip"
     cvo_redmag_cartridge = "556_ball";     // Complex-mode pack
 };
 
@@ -196,7 +241,7 @@ class cvo_redmag_belt_556_ball_tr5 : CA_Magazine {
     mass  = 25;
     cvo_redmag_isBelt = 1;
     cvo_redmag_cartridge       = "556_ball";
-    cvo_redmag_tracerCartridge = "556_tracer_red";
+    cvo_redmag_tracerCartridge = "556_tracer";
 };
 ```
 
@@ -248,22 +293,30 @@ class CfgPatches {
 };
 ```
 
-**Workflow with `tools/config_generator`**
-1. The generator runs in-game from the debug console. It iterates over `CfgMagazines`
-   entries used by infantry weapons.
-2. It groups them by `magazineWell` + `count`, which gives proposed bodies, and by `ammo`,
-   which gives proposed cartridges. Classes with `tracersEvery ≥ 2` are flagged as proposed
-   mixes. Then it emits a draft `config.cpp`.
-3. A human reviews names, merges duplicate bodies (e.g. mod PMAGs onto vanilla `stanag30`
-   if they are interchangeable) and commits the result.
+**Workflow with `tools/config_generator`** (usage in its [README](../tools/config_generator/README.md))
+1. The generator is a Python script that reads configs **offline**: it unpacks and
+   derapifies the given PBOs with HEMTT, so the game does not need to run. It iterates over
+   the `CfgMagazines` entries used by scope-2 infantry weapons (descendants of
+   `Rifle_Base_F` / `Pistol_Base_F`).
+2. It groups them by `magazineWell` + `count` + appearance (`modelSpecial` and
+   `hiddenSelectionsTextures`), which gives proposed bodies, and by `ammo`, which gives
+   proposed cartridges. The first appearance of a well and count gets the plain body ID, and
+   other finishes get a suffix from their texture file, to be renamed. Classes with `tracersEvery = 1` are proposed as tracer
+   cartridges, and classes with `tracersEvery ≥ 2` or `lastRoundsTracer > 0` as mixes. It writes a Markdown survey and
+   a draft `CfgMagazines` patch with every class's real parent, in an order where parents
+   come first.
+3. A human reviews names (e.g. `mx_65x39_30_xmx_base_khk_co` → `mx30_khaki`), merges
+   duplicate bodies (a mod's magazine that uses the same model and textures as a vanilla
+   one belongs on the vanilla body) and commits the result.
 4. The preInit validator confirms the mapping in-game.
 
 ## 7. Vanilla coverage checklist (`ammo` addon)
 
 | Family | Bodies (initial list) |
 |--------|----------------------|
-| 5.56×45 | `stanag30`, `stanag30_mx`?, `m249box200` |
-| 6.5×39 | `mx30`, `mx100` (box), `katiba30` |
+| 5.56×45 | ✅ `stanag30` (+ `_sand`), `stanag_drum150` (+ `_sand`, `_green`), `m249box200` (box), `sdar20` |
+| 6.5×39 caseless | ✅ `mx30` (+ `_khaki`, `_black`), `mx100` (+ `_khaki`, `_black`), `katiba30`, `msbs30`, `mk200box200` (box) |
+| 6.5×39 cased | ✅ `cmr20` |
 | 5.8×42 | `cpt30` (Type 115 / CAR-95), `car95box100` |
 | 7.62×51 | `mk18_20`, `spar17_20`, `mk1_20`, `navid150` (belt?) |
 | 7.62×39 | `akm30`, `rpk75`? |
@@ -271,5 +324,10 @@ class CfgPatches {
 | 9.3×64 / .338 / 12.7 | marksman and sniper magazines |
 | Pistol/SMG | `p07_16`, `rook_17`, `acp45_11`, `vermin30`, `sting30`, `protector30`, … |
 
-Entries marked `?` need checking against the game's config. The final list is produced by
-the generator and recorded in `addons/ammo/README.md`.
+✅ marks families that are mapped. Entries marked `?` need checking against the game's
+config. The final list is produced by the generator and recorded in
+[`addons/ammo/README.md`](../addons/ammo/README.md), together with the survey of vanilla
+mixed classes.
+
+`mx100` is a `mag`, not a `box`: the MX SW's 100-round magazine is refilled like any
+other magazine, since caseless rounds cannot be belted.

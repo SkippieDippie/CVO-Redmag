@@ -4,8 +4,20 @@ class CfgFunctions {
     class ADDON {
         class init {
             file = QPATHTOF(functions\init);
-            class preInit { preInit = 1; };     // CBA settings
+            class preInit { preInit = 1; };     // CBA settings, lookups and validation
             class postInit { postInit = 1; };
+        };
+        class data {
+            file = QPATHTOF(functions\data);
+            class buildLookups {};
+            class compatibleLoads {};
+            class getAmmoMode {};
+            class getBodyInfo {};
+            class loadCost {};
+            class loadKey {};
+            class magazineFor {};
+            class resolveRoundType {};
+            class splitLoad {};
         };
     };
 };

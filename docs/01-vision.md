@@ -47,7 +47,7 @@ between fights matter, and to give logistics roles something to do.
 
 | In scope | Notes |
 |----------|-------|
-| Empty magazine retention | Units controlled by a player, for infantry small-arms magazines that have a body defined in config. |
+| Empty magazine retention | Units controlled by a player, for infantry small-arms magazines that have a body defined in config. Each finish (sand, khaki, black, …) is its own body, so an Empty keeps its colour. |
 | Loose rounds as packs | Pack sizes follow real-world packaging where it exists. Pack *splitting* and *combining*. |
 | Refill magazines | Fill an Empty, or top off a partial magazine, from packs or an ammo can. **A magazine always needs a body:** loose rounds alone never become a magazine. |
 | Ammo modes | **Basic** (rounds by caliber, the default), **Complex** (by cartridge, opt-in) or **Simple** (by category, e.g. all intermediate calibers share rounds). Chosen per mission. |

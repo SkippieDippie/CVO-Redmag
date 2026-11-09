@@ -23,7 +23,7 @@
 | Zeus remote-control is not detected reliably | Zeus-controlled units keep Empties or show actions | One eligibility function used everywhere. Zeus checklist in the test mission (M2). |
 | Remove-and-re-add disturbs magazine order | Annoying for players | Only changed magazines are touched: each is removed on its own with `CBA_fnc_removeMagazine` (class + round count), and new ones are added with `CBA_fnc_addMagazine`. Nothing else is reshuffled. |
 | Reused CBA or ACE code loses its attribution | GPL non-compliance | Keep the original copyright and author lines in the header of every reused or adapted file. |
-| Vanilla mixed classes don't use `tracersEvery` consistently | Wrong ratios | The M1 survey records the ratio for every mixed class. `cvo_redmag_tracerEvery` overrides it. |
+| Vanilla mixed classes don't use `tracersEvery` consistently | Wrong ratios | The M1 survey records the ratio for every mixed class ([addons/ammo/README.md](../addons/ammo/README.md)). `cvo_redmag_tracerEvery` and `cvo_redmag_lastRoundsTracer` override it. |
 | Fixed per-class mass (a near-empty pack weighs as much as a full one) | Minor weight inaccuracy | Real-world packs are small (10–50 rounds), so the error is small. |
 | Real-world packaging data is missing for some calibers | Arbitrary sizes | Use the closest real analogue and record the source in config comments. |
 | Huge third-party magazine counts make compat work heavy | Slow coverage | The generator tool, plus "unmapped magazine = vanilla behaviour" so nothing breaks. |
@@ -47,7 +47,7 @@
 | D9 | ~~Licence: Arma Public License – Share Alike (APL-SA).~~ Superseded by D19. | 2026-11-08 | — |
 | D10 | Short on one cartridge in a mixed refill: **stop at the highest count that keeps the ratio**. | 2026-11-08 | As described in [02 §3.1](02-gameplay.md#31-mixed-magazines). |
 | D11 | A mixed refill or belt link **can draw from two ammo cans at once** (ball can + tracer can). | 2026-11-08 | Server reserves from both cans in one request ([03 §4](03-technical.md#4-multiplayer--locality)). |
-| D12 | **No bandoliers** for now. | 2026-11-08 | Packs are boxes, packets and stripper clips only. |
+| D12 | **No bandoliers** for now. | 2026-11-08 | Packs are boxes and stripper clips only (D37). |
 | D13 | **Three addons:** `main`, `core` (all code), `ammo` (all items and magazine mappings). | 2026-11-08 | Layout in [03 §1](03-technical.md#1-build--project-layout). Functions are `cvo_redmag_core_fnc_*`. |
 | D14 | Functions are declared with **`CfgFunctions`**, not CBA `PREP`/XEH. | 2026-11-08 | `core/CfgFunctions.hpp`, one category per feature, `preInit`/`postInit` attributes for init. CBA script macros (`GVAR`, `FUNC`, ...) are kept. |
 | D15 | Belts can be **linked without an Empty**, but the menu only offers belts for weapons used by the player or their squadmates. | 2026-11-08 | Exception to D6. Filter described in [02 §5.1](02-gameplay.md#51-which-belts-the-menu-offers). |
@@ -65,6 +65,14 @@
 | D27 | **Refill all only tops off partial magazines.** Empties are filled from the body's own entry, where the load is chosen. | 2026-11-08 | [02 §3](02-gameplay.md#3-refilling-magazines). |
 | D28 | **No *Give rounds* action.** Packs are shared through the inventory screen. | 2026-11-08 | Removed from [02 §2](02-gameplay.md#2-loose-rounds-packs). |
 | D29 | The second can for a mixed load is the **nearest can holding the other cartridge within 5 m** of the player, picked automatically. | 2026-11-08 | [02 §6](02-gameplay.md#6-ammo-cans). |
+| D30 | Magazine **ammo is validated per caliber** (`ammo[]` on each caliber), not per cartridge. | 2026-11-08 | The M1 survey showed that vanilla ball and tracer magazines often share one ammo class and that ball magazines may use tracer-coloured ammo; the load comes from `tracersEvery`. [04 §2](04-config.md#2-cfgcvoredmag). |
+| D31 | `cvo_redmag_preferred` **is not inherited**: it only counts on the class that sets it. | 2026-11-08 | A base class can be preferred without every child becoming preferred too. [04 §3](04-config.md#3-mapping-magazines-cfgmagazines-attributes). |
+| D32 | The config generator is an **offline Python tool** that reads PBOs through HEMTT, not an in-game script. | 2026-11-08 | No game launch needed; any mod's PBOs can be surveyed. [04 §6](04-config.md#6-compat-patches). |
+| D33 | Vanilla specifics: **`mx100` is a `mag`**, not a `box`; **blank magazines** are excluded. | 2026-11-08 | `addons/ammo/calibers/*.hpp`, survey in `addons/ammo/README.md`. |
+| D34 | **Tracer counts use both `tracersEvery` (N) and `lastRoundsTracer` (L):** a mix with *c* rounds holds `min(c, L) + floor(max(0, c − L) / N)` tracers. Every vanilla bullet has a tracer, so a "ball" magazine with `lastRoundsTracer = 4` is a mix of ball and tracer; the "reload tracer" classes only differ by tracer colour. | 2026-11-08 | Loads become `[cart, tracerCart, tracerEvery, lastTracers]`, keys `ball+tracer/N/L`; new optional attribute `cvo_redmag_lastRoundsTracer`. In Complex mode, refilling most magazines needs a few tracer rounds: with no tracer rounds, an Empty whose `lastRoundsTracer` > 0 cannot be filled. This is intended; there is no ball-only fallback. [02 §3.1](02-gameplay.md#31-mixed-magazines), [03 §2](03-technical.md#loads). |
+| D35 | **A body includes its finish:** magazines with another model (`modelSpecial`) or other textures (`hiddenSelectionsTextures`) are different bodies with their own Empty. Class names and icons are not used to decide this. | 2026-11-08 | Vanilla gains `stanag30_sand`, `stanag_drum150_sand` / `_green`, `mx30_khaki` / `_black`, `mx100_khaki` / `_black` (17 bodies). Variants inherit the base body. The generator groups by appearance. [04 §2](04-config.md#2-cfgcvoredmag). |
+| D36 | **One tracer cartridge per caliber**, whatever the tracer colour. The colour belongs to the magazine class. | 2026-11-08 | `556_tracer` and `65_tracer` replace the red / green / yellow cartridges, with one tracer pack each. Classes that only differ by colour share a *(body, load)*; the preferred class is the base class the others inherit from, and red for the plain STANAG tracers. [04 §2](04-config.md#2-cfgcvoredmag). |
+| D37 | **Pack types are `box` and `clip` only.** `packet` is dropped: it behaved exactly like `box`. | 2026-11-09 | Packs sold in paper packets (e.g. 5.45×39) are `box` packs. The validator rejects any other `cvo_redmag_packType`. [04 §4](04-config.md#4-cvo-redmag-item-classes). |
 
 ## Open questions
 

@@ -13,7 +13,7 @@ Reloading stays as fast as vanilla. Refilling, unloading, repacking and belt lin
 
 ## Features
 - **Empty magazines:** reloading over an empty magazine, or dragging one out of a weapon in the inventory, gives you an Empty. A new magazine always needs an Empty or a partial magazine.
-- **Loose rounds in packs:** boxes, packets and stripper clips sized after real packaging, with combine and split actions.
+- **Loose rounds in packs:** boxes and stripper clips sized after real packaging, with combine and split actions.
 - **Refill, unload, swap load and repack:** from the ACE self-menu and the inventory context menu. Replaces ACE Magazine Repack, so repacking never destroys magazines.
 - **Mixed ball and tracer magazines:** filled from both cartridges in the magazine's tracer ratio. Unloading returns exactly what went in.
 - **Belts:** link, unlink and join belts from loose rounds, and load or unload box magazines. Replaces ACE assisted belt linking.

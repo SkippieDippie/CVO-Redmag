@@ -2,7 +2,7 @@
 /*
  * Author: Skippie [CVO]
  * Runs at preInit (CfgFunctions preInit = 1) on every machine.
- * Registers the CBA settings.
+ * Registers the CBA settings, then builds and validates the lookup tables.
  *
  * Arguments:
  * None
@@ -23,5 +23,7 @@
     {},
     true // needs mission restart
 ] call CBA_fnc_addSetting;
+
+call FUNC(buildLookups);
 
 INFO_1("preInit done, version %1",QUOTE(VERSION_STR));

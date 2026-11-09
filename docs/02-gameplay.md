@@ -135,10 +135,15 @@ closest real cartridge. Starting list, to be confirmed against references in M1:
 | 5.56×45 | 20-round boxes; 10-round stripper clips; M2A1 can | box 20, clip 10 | 840 |
 | 7.62×51 | 20-round boxes | box 20 | TBC |
 | 7.62×39 | 20-round boxes; sealed tins | box 20 | TBC |
-| 5.45×39 | 30-round paper packets; sealed tins | packet 30 | TBC |
+| 5.45×39 | 30-round paper packets; sealed tins | box 30 | TBC |
 | 9 mm / .45 ACP | 50-round boxes | box 50 | TBC |
+| 6.5×39 cased | 6.5 Grendel: 20-round boxes | box 20 | TBC |
+| 6.5×39 caseless (fictional) | Closest real analogue: 6.5 Grendel, 20-round boxes | box 20 | TBC |
 | Marksman and sniper calibers | 10- or 20-round boxes | TBC | TBC |
-| Fictional calibers | Closest real analogue | TBC | TBC |
+| Other fictional calibers | Closest real analogue | TBC | TBC |
+
+Tracer cartridges use the same packaging as ball (e.g. M856 in 20-round boxes). The
+fictional 5.56 mm dual-purpose round of the SDAR is packed like ball.
 
 Pack and can masses also use real-world weights. **Bandoliers are not included** for now.
 
@@ -173,7 +178,8 @@ magazine**. Loose rounds alone never become a magazine.
    the load.
 2. When filling Empties and more than one load is possible, a submenu picks the load. The
    list contains every magazine class mapped to that body whose cartridges the player has,
-   e.g. *Ball*, *Tracer (red)*, *Ball + tracer (red), 1 in 5*.
+   e.g. *Ball + last 4 tracer*, *Tracer*, *Ball + tracer, 1 in 5*. Classes that only differ
+   by tracer colour are one entry (D36).
 3. An ACE progress bar runs for `rounds × timePerRound`.
    - Default `timePerRound`: **0.6 s** for magazines, and **0.24 s** (0.6 × 0.4) with a stripper clip on a
      compatible body.
@@ -194,22 +200,39 @@ magazine**. Loose rounds alone never become a magazine.
 
 ### 3.1 Mixed magazines
 
-Some magazine classes mix ball and tracer, e.g. a belt with one tracer every 5 rounds. These
-are loaded from **both** a ball cartridge and a tracer cartridge. There is no separate
-"mixed" round.
+Some magazine classes mix ball and tracer, e.g. a belt with one tracer every 5 rounds, or a
+magazine whose last rounds are tracers to warn that it is nearly empty. These are loaded from
+**both** a ball cartridge and a tracer cartridge. There is no separate "mixed" round.
 
-- **Ratio:** one tracer every *N* rounds. *N* comes from the magazine class (see
-  [04 §3](04-config.md#3-mapping-magazines-cfgmagazines-attributes)).
-- **Split rule:** a mixed magazine holding *c* rounds contains `floor(c / N)` tracers and
-  the rest ball. For example, 200 rounds at 1 in 5 is 40 tracer and 160 ball.
+- **Tracer pattern:** two engine values of the magazine class (see
+  [04 §3](04-config.md#3-mapping-magazines-cfgmagazines-attributes)):
+  - *L* = `lastRoundsTracer`: the last *L* rounds fired are tracers. They are the first *L*
+    rounds loaded, at the bottom of the magazine.
+  - *N* = `tracersEvery`: one tracer every *N* rounds among the rest (0 = none).
+- **Split rule:** a mixed magazine holding *c* rounds contains
+  `min(c, L) + floor(max(0, c − L) / N)` tracers (the second term only when *N* ≥ 2), and
+  the rest ball. Examples:
+  - a vanilla STANAG (*N* = 0, *L* = 4) with 30 rounds: 4 tracers and 26 ball;
+  - a LIM-85 box (*N* = 4, *L* = 4) with 200 rounds: 4 + 49 = 53 tracers and 147 ball.
+- **Most vanilla magazines are mixes.** Every vanilla bullet has a tracer, and almost every
+  vanilla magazine has `lastRoundsTracer = 4`, so its last 4 rounds are tracers. Only
+  magazines with *N* = 1 are all tracer, and only those with *N* = 0 and *L* = 0 (e.g. the
+  CMR-76) are all ball (D34). In Basic and Simple mode this changes nothing, because ball and
+  tracer are the same round type.
+- **One tracer cartridge per caliber** (D36). The tracer colour (red, green, yellow) is
+  drawn by the magazine class, not carried by the rounds, so any tracer rounds fill any
+  tracer slot. When several magazine classes differ only by colour, refilling an Empty
+  produces the preferred one.
 - **Topping off** from *a* to *b* rounds uses `split(b) − split(a)` of each cartridge.
 - **Unloading** a mixed magazine with *c* rounds returns `split(c)`. Load-then-unload
   always returns exactly what went in, so there is nothing to exploit.
 - **Running short:** if one of the two cartridges runs out, filling stops at the highest
-  round count the remaining rounds can make in the correct ratio (decision D10).
+  round count the remaining rounds can make in the correct pattern (decision D10). Because
+  the last-round tracers are loaded first, an Empty with *L* > 0 cannot be filled at all
+  without at least one tracer round in Complex mode.
 
-In the engine a mixed magazine fires one ammo class and draws a tracer every *N* rounds. The
-ball/tracer split is CVO Redmag's bookkeeping of what went in and what comes out.
+In the engine a mixed magazine fires one ammo class and draws its tracers by the pattern
+above. The ball/tracer split is CVO Redmag's bookkeeping of what went in and what comes out.
 
 ---
 

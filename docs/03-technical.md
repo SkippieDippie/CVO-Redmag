@@ -124,24 +124,30 @@ Category "intermediate"                         ← Simple-mode round type
 Caliber "556x45"  (category "intermediate")     ← Basic-mode round type
   ├── Body  "stanag30"   (capacity 30, emptyItem "cvo_redmag_empty_stanag30", type "mag")
   ├── Body  "m249box200" (capacity 200, type "box")
-  ├── Cartridge "556_ball"       (ammo "B_556x45_Ball")             ← Complex-mode round types
-  └── Cartridge "556_tracer_red" (ammo "B_556x45_Ball_Tracer_Red")
+  ├── Cartridge "556_ball"   (ammo "B_556x45_Ball")                  ← Complex-mode round types
+  └── Cartridge "556_tracer" (ammo "B_556x45_Ball_Tracer_Red")       ← every tracer colour (D36)
 
-MagazineClass "30Rnd_556x45_Stanag"            → (stanag30,   load 556_ball)
-MagazineClass "30Rnd_556x45_Stanag_Tracer_Red" → (stanag30,   load 556_tracer_red)
-MagazineClass "200Rnd_556x45_Box_F" (example)  → (m249box200, load 556_ball+556_tracer_red/5)
+MagazineClass "30Rnd_556x45_Stanag"            → (stanag30,   load 556_ball+556_tracer/0/4)
+MagazineClass "30Rnd_556x45_Stanag_Tracer_Red" → (stanag30,   load 556_tracer)
+MagazineClass "200Rnd_556x45_Box_F"            → (m249box200, load 556_ball+556_tracer/4/4)
 PackClass     "cvo_redmag_pack_556_ball_box20" → (556_ball, 20)
-BeltClass     "cvo_redmag_belt_556_ball_tr5"   → (load 556_ball+556_tracer_red/5, belt)
+BeltClass     "cvo_redmag_belt_556_ball_tr5"   → (load 556_ball+556_tracer/5/0, belt)
 ```
 
 ### Loads
 
-A load is stored as `[cartId, tracerCartId, tracerEvery]`:
+A load is stored as `[cartId, tracerCartId, tracerEvery, lastTracers]`:
 
-- single cartridge: `["556_ball", "", 0]`;
-- mix: `["556_ball", "556_tracer_red", 5]`.
+- single cartridge: `["556_ball", "", 0, 0]`;
+- mix with last-round tracers only (a vanilla STANAG): `["556_ball", "556_tracer", 0, 4]`;
+- mix with both (a vanilla LIM-85 box): `["556_ball", "556_tracer", 4, 4]`.
 
-Its **load key** is a string used in hashmap keys: `"556_ball"` or `"556_ball+556_tracer_red/5"`.
+`tracerEvery` and `lastTracers` come from the magazine's engine `tracersEvery` and
+`lastRoundsTracer` unless the mapping overrides them. A mix needs `tracerEvery` 0 or ≥ 2
+(1 is all tracer: map it as a single tracer cartridge) and at least one of the two above 0.
+
+Its **load key** is a string used in hashmap keys: `"556_ball"` or
+`"556_ball+556_tracer/4/4"` (ball + tracer / tracerEvery / lastTracers).
 The split rule from [02 §3.1](02-gameplay.md#31-mixed-magazines) lives in one pure function,
 `cvo_redmag_core_fnc_splitLoad`:
 
@@ -183,7 +189,7 @@ extra at runtime: resolving is one hashmap lookup per level.
 | `bodyLoads` | bodyId | `[load, ...]`: every load that has a magazine class for this body |
 | `bodies` | bodyId | `[caliber, capacity, emptyItem, type, flags]` |
 | `cartridges` | cartId | `[caliber, cfgAmmo, displayName, packClasses[]]` |
-| `calibers` | caliber | `[category, displayName, packClasses[]]` |
+| `calibers` | caliber | `[category, displayName, packClasses[], cfgAmmo[]]` |
 | `categories` | category | `[displayName, packClasses[]]` |
 | `roundTypeLevel` | round type | `"cartridge"`, `"caliber"` or `"category"` |
 | `emptyToBody` | empty item class | bodyId |
@@ -194,14 +200,23 @@ At preInit, **validation** logs a warning (and skips the entry) when:
 
 - a mapped magazine class doesn't exist;
 - its `count` doesn't match the body capacity;
-- its `ammo` doesn't match the cartridge's `CfgAmmo` (for a mix: the ball or the tracer
-  cartridge's `CfgAmmo`);
-- a mix has `tracerEvery < 2`, or its two cartridges have different calibers;
+- its `ammo` is not in its caliber's `ammo[]` (vanilla ball and tracer magazines often
+  share one ammo class, so the ammo cannot identify the cartridge);
+- its cartridge's caliber doesn't match its body's caliber;
+- a mix has `tracerEvery` 1 or below 0, a negative `lastTracers`, no tracers at all (both 0),
+  or two cartridges of different calibers;
+- several classes map to the same *(body, load)* and not exactly one of them sets
+  `cvo_redmag_preferred` itself (inherited values don't count);
+- a cartridge's `ammo` is not in its caliber's `ammo[]`;
+- a pack sets none or more than one of `cvo_redmag_cartridge` / `caliber` / `category`, has a
+  `cvo_redmag_packType` other than `box` or `clip`, or a round type lists a pack that
+  doesn't exist or holds another round type;
 - a `mag` or `box` body has no empty item (a `belt` body has none by design);
 - a caliber has no category, or a cartridge, caliber or category has no pack class (that
   round type would have no loose-round item in its mode).
 
-This catches broken compat patches early.
+This catches broken compat patches early. The validator ends with one RPT line:
+`Config validation passed`, or the number of problems found.
 
 ---
 
