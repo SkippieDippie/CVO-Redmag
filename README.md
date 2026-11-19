@@ -52,3 +52,20 @@ hemtt build
 ## Links
 - [GitHub Repository: CVO Redmag](https://github.com/SkippieDippie/CVO-Redmag)
 - [Steam Workshop: CVO Redmag](https://steamcommunity.com/sharedfiles/filedetails/?id=3821740168)
+
+
+## Framework CI
+
+The `rewrite` branch runs HEMTT checks and a build through the reusable workflows in
+[Arma3-Mod-Workflows](https://github.com/SkippieDippie/Arma3-Mod-Workflows).
+The workflow is pinned to framework commit
+`6b14235d84dc6e141421610c7d14043f17c4c8b9` so framework updates are deliberate.
+
+To enable the workflow, configure a repository Actions secret named
+`FRAMEWORK_TOKEN`. It must be a fine-grained personal access token with read-only
+Contents access to the private framework repository. The framework repository must also
+allow this repository under **Settings → Actions → General → Access**.
+
+Project-specific framework settings are in `arma3-workflows.json`. Validation and
+SQF-VM runtime tests are intentionally not enabled yet; they will be added once CVO
+Redmag's manifests and test scripts are ready.
