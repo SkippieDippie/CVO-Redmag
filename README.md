@@ -68,3 +68,18 @@ GitHub Actions token.
 Project-specific framework settings are in `arma3-workflows.json`. Validation and
 SQF-VM runtime tests are intentionally not enabled yet; they will be added once CVO
 Redmag's manifests and test scripts are ready.
+
+## Releases
+
+The `release.yml` workflow delegates release preparation and publishing to
+[Arma3-Mod-Workflows](https://github.com/SkippieDippie/Arma3-Mod-Workflows), pinned to
+`d725da8e738a06847839ef1e60511397cd290f54`.
+
+Add these repository Actions secrets before publishing:
+
+- `STEAM_USERNAME`
+- `STEAM_PASSWORD`
+
+A GitHub prerelease builds and uploads the Dev Workshop variant. Publishing a full GitHub Release runs the Dev variant first and then the Stable variant; both ZIPs are attached to the same GitHub Release, and the release is finalized after the Stable Steam upload succeeds.
+
+The Dev Workshop item is `3821765111`; the Stable item is `3821740168`. Both items must already exist and the Steam account must have permission to update them.
