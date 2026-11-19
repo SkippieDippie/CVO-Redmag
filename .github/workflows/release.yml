@@ -13,7 +13,7 @@ jobs:
     if: github.event.action == 'prereleased' || github.event.action == 'released'
     uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/release.yml@d725da8e738a06847839ef1e60511397cd290f54
     with:
-      release-tag: \${{ github.event.release.tag_name }}
+      release-tag: ${{ github.event.release.tag_name }}
       hemtt-version: v1.21.0
       version-header-path: addons/main/script_version.hpp
       meta-file-path: meta.cpp
@@ -22,11 +22,11 @@ jobs:
       release-folder: '@CVO-Redmag-Dev'
       publish-github: true
       publish-steam: true
-      prerelease: \${{ github.event.action == 'prereleased' }}
-      finalize-github: \${{ github.event.action == 'prereleased' }}
+      prerelease: ${{ github.event.action == 'prereleased' }}
+      finalize-github: ${{ github.event.action == 'prereleased' }}
     secrets:
-      steam_username: \${{ secrets.STEAM_USERNAME }}
-      steam_password: \${{ secrets.STEAM_PASSWORD }}
+      steam_username: ${{ secrets.STEAM_USERNAME }}
+      steam_password: ${{ secrets.STEAM_PASSWORD }}
 
   release-stable:
     name: Build and publish Stable Workshop variant
@@ -34,7 +34,7 @@ jobs:
     if: github.event.action == 'released'
     uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/release.yml@d725da8e738a06847839ef1e60511397cd290f54
     with:
-      release-tag: \${{ github.event.release.tag_name }}
+      release-tag: ${{ github.event.release.tag_name }}
       hemtt-version: v1.21.0
       version-header-path: addons/main/script_version.hpp
       meta-file-path: meta.cpp
@@ -46,5 +46,5 @@ jobs:
       prerelease: false
       finalize-github: true
     secrets:
-      steam_username: \${{ secrets.STEAM_USERNAME }}
-      steam_password: \${{ secrets.STEAM_PASSWORD }}
+      steam_username: ${{ secrets.STEAM_USERNAME }}
+      steam_password: ${{ secrets.STEAM_PASSWORD }}
