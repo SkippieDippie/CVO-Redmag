@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "project": {
+    "name": "CVO Redmag",
+    "workshop_id": "3821740168"
+  },
+  "tools": {
+    "hemtt": {
+      "enabled": true,
+      "required": true,
+      "version": "1.21.0",
+      "timeout_seconds": 600
+    }
+  },
+  "modules": {
+    "build": { "enabled": true },
+    "validation": { "enabled": false },
+    "testing": { "enabled": false },
+    "release": { "enabled": false }
+  }
+}
