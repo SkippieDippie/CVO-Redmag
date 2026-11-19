@@ -1,5 +1,5 @@
 # CVO Redmag
-[![Build](https://github.com/SkippieDippie/CVO-Redmag/actions/workflows/validate_hemtt.yml/badge.svg)](https://github.com/SkippieDippie/CVO-Redmag/actions/workflows/validate_hemtt.yml)
+[![Build](https://github.com/SkippieDippie/CVO-Redmag/actions/workflows/ci.yml/badge.svg)](https://github.com/SkippieDippie/CVO-Redmag/actions/workflows/ci.yml)
 [![Steam Subscriptions](https://img.shields.io/steam/subscriptions/3821740168)](https://steamcommunity.com/sharedfiles/filedetails/?id=3821740168)
 [![Licence: GPL-2.0](https://img.shields.io/badge/licence-GPL--2.0-blue)](LICENSE)
 [![Requires CBA_A3](https://img.shields.io/badge/requires-CBA__A3-orange)](https://steamcommunity.com/workshop/filedetails/?id=450814997)
