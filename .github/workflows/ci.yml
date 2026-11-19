@@ -15,21 +15,17 @@ permissions:
 jobs:
   hemtt-check:
     name: HEMTT checks
-    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/hemtt.yml@6b14235d84dc6e141421610c7d14043f17c4c8b9
+    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/hemtt.yml@585c0cd2c8811741e44e4b6e9a662f16a1f10518
     with:
       operation: Check
-      framework-ref: 6b14235d84dc6e141421610c7d14043f17c4c8b9
+      framework-ref: 585c0cd2c8811741e44e4b6e9a662f16a1f10518
       hemtt-version: v1.21.0
-    secrets:
-      framework_token: ${{ secrets.FRAMEWORK_TOKEN }}
 
   hemtt-build:
     name: HEMTT build
     needs: hemtt-check
-    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/hemtt.yml@6b14235d84dc6e141421610c7d14043f17c4c8b9
+    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/hemtt.yml@585c0cd2c8811741e44e4b6e9a662f16a1f10518
     with:
       operation: Build
-      framework-ref: 6b14235d84dc6e141421610c7d14043f17c4c8b9
+      framework-ref: 585c0cd2c8811741e44e4b6e9a662f16a1f10518
       hemtt-version: v1.21.0
-    secrets:
-      framework_token: ${{ secrets.FRAMEWORK_TOKEN }}
