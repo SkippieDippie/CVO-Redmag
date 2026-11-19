@@ -11,7 +11,7 @@ jobs:
   release-dev:
     name: Build and publish Dev Workshop variant
     if: github.event.action == 'prereleased' || github.event.action == 'released'
-    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/release.yml@0267fa5e4679eb5f020c6a973070bb032ef1b575
+    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/release.yml@0de430b17adb8e1b1e1529cde93a38b59d28382f
     with:
       release-tag: ${{ github.event.release.tag_name }}
       hemtt-version: v1.21.0
@@ -32,7 +32,7 @@ jobs:
     name: Build and publish Stable Workshop variant
     needs: release-dev
     if: github.event.action == 'released'
-    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/release.yml@0267fa5e4679eb5f020c6a973070bb032ef1b575
+    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/release.yml@0de430b17adb8e1b1e1529cde93a38b59d28382f
     with:
       release-tag: ${{ github.event.release.tag_name }}
       hemtt-version: v1.21.0
