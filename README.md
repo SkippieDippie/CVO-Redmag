@@ -59,7 +59,7 @@ hemtt build
 The `rewrite` branch runs HEMTT checks and a build through the reusable workflows in
 [Arma3-Mod-Workflows](https://github.com/SkippieDippie/Arma3-Mod-Workflows).
 The workflow is pinned to framework commit
-`6b14235d84dc6e141421610c7d14043f17c4c8b9` so framework updates are deliberate.
+`82d8726dff00e9a66b76b0d3d43eb909aad45196` so framework updates are deliberate.
 
 The framework repository is public, so no personal access token or repository secret is
 required. The workflow checks out the exact pinned framework commit using the default
