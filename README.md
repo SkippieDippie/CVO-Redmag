@@ -73,7 +73,7 @@ Redmag's manifests and test scripts are ready.
 
 The `release.yml` workflow delegates release preparation and publishing to
 [Arma3-Mod-Workflows](https://github.com/SkippieDippie/Arma3-Mod-Workflows), pinned to
-`218f5f3edf62374582ff85bd86a0c81f7db28413`.
+`ad79f1f3c0c6123c778837c7ad40cabd39d841a`.
 
 Add these repository Actions secrets before publishing:
 
