@@ -15,7 +15,7 @@ permissions:
 jobs:
   hemtt-check:
     name: HEMTT checks
-    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/hemtt.yml@c26a9974afc83703d5c99a2c1b6c15017114f4d2
+    uses: CVO-Org/CVO-Arma3-Mod-Workflows/.github/workflows/hemtt.yml@c26a9974afc83703d5c99a2c1b6c15017114f4d2
     with:
       operation: Check
       framework-ref: c26a9974afc83703d5c99a2c1b6c15017114f4d2
@@ -24,7 +24,7 @@ jobs:
   hemtt-build:
     name: HEMTT build
     needs: hemtt-check
-    uses: SkippieDippie/Arma3-Mod-Workflows/.github/workflows/hemtt.yml@c26a9974afc83703d5c99a2c1b6c15017114f4d2
+    uses: CVO-Org/CVO-Arma3-Mod-Workflows/.github/workflows/hemtt.yml@c26a9974afc83703d5c99a2c1b6c15017114f4d2
     with:
       operation: Build
       framework-ref: c26a9974afc83703d5c99a2c1b6c15017114f4d2
